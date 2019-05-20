@@ -1,0 +1,49 @@
+platform:
+  - x64
+
+version: '{build}'
+
+skip_commits:
+  message: /(readme|docs)/
+
+environment:
+  nuGetPath: $(ProgramFiles)\packageManagement\ProviderAssemblies\nuget
+  UserModules: $(USERPROFILE)\Documents\WindowsPowerShell\Modules
+
+cache:
+  - '%nuGetPath%'
+  - '%UserModules% -> appveyor.yml'
+
+init:
+  - ps: ('POSH {0}' -f $psVersionTable.psVersion)
+  - WhoAmI
+
+install:
+
+  - ps: Get-ChildItem $env:UserModules | ForEach-Object{ $_.FullName }
+
+  - ps: if (-not (Test-Path $env:nuGetPath)) {
+            Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.208 -Force | Out-Null
+        }
+
+  - ps: if (-not (Test-Path $env:UserModules\Pester)) {
+            Install-Module Pester -RequiredVersion 3.4.3 -Scope CurrentUser -Force
+        }
+
+  - ps: if (-not (Test-Path $env:UserModules\PSScriptAnalyzer)) {
+            Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
+        }
+
+before_test:
+  - ps: Get-InstalledModule  | Format-Table -HideTableHeaders -Property Name, Version
+  - cmd: set PS_PROFILE=%userprofile%\Documents\WindowsPowerShell\Modules\%APPVEYOR_PROJECT_NAME%
+  - cmd: IF Not Exist %PS_PROFILE% mklink /J %PS_PROFILE% %APPVEYOR_BUILD_FOLDER%
+
+test_script:
+  - ps: .\Tests\Coverage.ps1
+
+after_test:
+  - ps: Remove-Item -Path $env:UserModules\$env:APPVEYOR_PROJECT_NAME -Recurse -Force -Verbose
+
+build: off
+
