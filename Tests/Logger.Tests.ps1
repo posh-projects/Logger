@@ -1,17 +1,25 @@
-Using module ..\Logger.psm1
-Using module ..\Src\Entry\LoggerEntryTrimmed.psm1
-Using module ..\Src\Appender\ColoredConsoleAppender.psm1
-Using module ..\Src\Appender\AppVeyorAppender.psm1
+using module ..\Logger.psm1
+using module ..\Src\Entry\LoggerEntryTrimmed.psm1
+using module ..\Src\Appender\ColoredConsoleAppender.psm1
+using module ..\Src\Appender\AppVeyorAppender.psm1
+using module ..\Src\Appender\FileAppender.psm1
 
-Using namespace Logger
+using namespace Logger
 
 Set-Variable consoleOutput -Scope Global
 
 Describe 'Logger Tests' {
     
-    Mock -ModuleName ColoredConsoleAppender -CommandName Write-Host -MockWith {
+    Mock -ModuleName FileAppender -CommandName Add-Content -MockWith {
+        param ([String]$path)
+        
+        $global:consoleOutput = $path
+    }
+    
+    Mock -ModuleName ColoredConsoleAppender -CommandName Format-Color -MockWith {
         param ([String]$object)
-        $global:consoleOutput = $object
+        
+        $global:consoleOutput = $args
     }
     
     [ILogger]$logger = New-Object Logger
@@ -20,17 +28,39 @@ Describe 'Logger Tests' {
         $logger | Should BeOfType ([ILogger])
     }
     
+    
+    Context 'FileAppender' {
+        
+        $logger.appenders.add([FileAppender]@{ logPath = ('{0}\Logs\miner.log' -f $PSScriptRoot) })
+        
+        [Enum]::GetValues([LoggingEventType]) | ForEach-Object {
+            [String]$LoggingType = $_
+            
+            It "Log $LoggingType" {
+                
+                $logger.$LoggingType($LoggingType)
+
+                [String]$consoleOutput | Should BeLike ('*miner.log*')
+            }
+        }
+        
+        $logger.appenders.clear()
+    }
+    
     Context 'ColoredConsoleAppender' {
         
         $logger.appenders.add([ColoredConsoleAppender]@{ })
         
         [Enum]::GetValues([LoggingEventType]) | ForEach-Object {
             [String]$LoggingType = $_
+            
             It "Log $LoggingType" {
                 
-                $logger.$LoggingType($LoggingType + [Environment]::NewLine)
+                $logger.$LoggingType($LoggingType)
                 
-                $consoleOutput | Should Be ($LoggingType + ([Environment]::NewLine))
+                #$logger.$LoggingType($LoggingType + [Environment]::NewLine)
+                
+                [String]$consoleOutput | Should BeLike ('*' + $LoggingType + '*')
             }
         }
         
@@ -47,9 +77,9 @@ Describe 'Logger Tests' {
             [String]$LoggingType = $_
             It "Log $LoggingType" {
                 
-                $logger.$LoggingType($LoggingType + [Environment]::NewLine)
+                $logger.$LoggingType($LoggingType)
                 
-                $consoleOutput | Should Be $LoggingType
+                [String]$consoleOutput | Should BeLike ('*' + $LoggingType + '*')
             }
         }
         
@@ -58,7 +88,7 @@ Describe 'Logger Tests' {
     
     Context 'AppVeyorAppender' {
         
-        Function Add-AppveyorMessage { }
+        function Add-AppveyorMessage { }
         Mock -ModuleName AppVeyorAppender Add-AppveyorMessage -MockWith { }
         
         $logger.appenders.add([AppVeyorAppender]@{ })

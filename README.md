@@ -13,6 +13,7 @@ using module Logger
 
 $logger = New-Object Logger
 $logger.appenders.add([Logger.ColoredConsoleAppender]@{ })
+$logger.appenders.add([Logger.FileAppender]@{ logPath = ('{0}\Logs\miner.log' -f $PSScriptRoot) })
 
 $logger.error('ColoredConsole Appender')
 ```
@@ -55,5 +56,5 @@ $logger.appenders.add([CustomAppender]@{ })
 $logger.error('Custom Appender')
 ```
 
-[psgallery-badge]: https://img.shields.io/badge/PowerShell_Gallery-1.0.6-green.svg
-[psgallery-status]: https://www.powershellgallery.com/packages/Logger/1.0.6
+[psgallery-badge]: https://img.shields.io/badge/PowerShell_Gallery-1.0.7-green.svg
+[psgallery-status]: https://www.powershellgallery.com/packages/Logger/1.0.7

@@ -1,5 +1,5 @@
-﻿<Project>
-  <Version>2.0</Version>
+﻿<Project Synchronized="False" SyncFilter="*.ps1;*.psm1;*.psd1;*.ps1xml;*.psf;*.pss;*.xml;*.help.txt">
+  <Version>2.1</Version>
   <FileID>d00fa835-9dfb-4c8e-b672-a5ce4abbbf61</FileID>
   <ProjectType>2</ProjectType>
   <Folders>
@@ -21,8 +21,9 @@
     <File Build="2">appveyor.yml</File>
     <File Build="2">README.md</File>
     <File Build="2">.gitignore</File>
+    <File Build="2" Shared="False">Tests\Coverage.ps1</File>
+    <File Build="2">Src\Appender\FileAppender.psm1</File>
   </Files>
   <DeployMode>Project</DeployMode>
-  <PrimaryFile>
-  </PrimaryFile>
+  <PrimaryFile></PrimaryFile>
 </Project>

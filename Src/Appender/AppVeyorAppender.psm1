@@ -1,6 +1,6 @@
-using module ..\ILogger.psm1
+﻿using module ..\ILogger.psm1
 
-class AppVeyorAppender: ILoggerAppender
+class AppVeyorAppender: iloggerappender
 {
     [void]log([ILoggerEntry]$entry)
     {
@@ -10,7 +10,7 @@ class AppVeyorAppender: ILoggerAppender
             ([LoggingEventType]::Fatal) { [LoggingEventType]::Error }
             default { $entry.severity }
         }
-        
+
         Add-AppveyorMessage $entry.message -Category ([String]$entry.severity)
     }
 }

@@ -12,9 +12,11 @@ class ColoredConsoleAppender: ILoggerAppender
     {
         $member = '{0}Color' -f $entry.severity
         $color = [ColoredConsoleAppender]::$member
-        # Write-Host $entry.message -ForegroundColor $color
 
-        Format-Color cr lpad rpad black on darkyellow (Get-Date) print $color on black $entry.message print cr
+        $message = '{0}:{1}' -f $entry.severity.toString().toUpper(), $entry.message
+
+        Format-Color cr lpad rpad black on darkyellow (Get-Date) print `
+                     $color on black $message print cr
 
     }
 }

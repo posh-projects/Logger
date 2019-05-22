@@ -1,4 +1,4 @@
-using namespace System.Collections.Generic
+﻿using namespace System.Collections.Generic
 
 enum LoggingEventType
 {
@@ -13,7 +13,7 @@ class ILogger
 {
     [List[ILoggerAppender]]$appenders
     [Type]$logEntryType
-    
+
     [void]debug([String]$message) { }
     [void]information([String]$message) { }
     [void]warning([String]$message) { }
@@ -25,11 +25,11 @@ class ILoggerEntry
 {
     [ValidatePattern('\w')]
     [LoggingEventType]$severity
-    
+
     [ValidateNotNullOrEmpty()]
     [String]$message
     [Exception]$exception = $null
-    
+
     static [ILoggerEntry]yield([String]$text) { throw }
 }
 
